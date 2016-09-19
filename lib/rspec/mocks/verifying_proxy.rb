@@ -192,11 +192,15 @@ module RSpec
         !@valid_method
       end
 
+      if RUBY_VERSION < '1.9'
+        def validate_arguments!(actual_args)
+          super if Mocks.configuration.temporarily_suppressing_partial_double_verification
+        end
+      end
+
       def self.for(object, method_name, proxy)
         if ClassNewMethodReference.applies_to?(method_name) { object }
           VerifyingExistingClassNewMethodDouble
-        elsif Mocks.configuration.temporarily_suppressing_partial_double_verification
-          MethodDouble
         else
           self
         end.new(object, method_name, proxy)
